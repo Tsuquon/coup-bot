@@ -15,7 +15,7 @@ change the index on when to coup
 game_info: Optional[GameInfo] = None
 bot_battle = BotBattle()
 
-our_bot = Player()
+our_bot = Player(game_info.own_cards, game_info.players_cards_num)
 
 
 def get_next_alive_player():
