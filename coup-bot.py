@@ -2,8 +2,20 @@ from operator import contains
 from submission_helper.bot_battle import BotBattle
 from submission_helper.state import *
 from submission_helper.enums import *
-from player import Player
 from typing import Optional
+
+class Player:
+    
+    def __init__(self, cards, no_of_cards):
+        self.cards = cards
+        self.no_of_cards = no_of_cards
+        self.get_data()
+        
+    def get_data(self):
+        print(self.cards, self.no_of_cards)
+        
+
+
 
 
 '''
@@ -16,7 +28,7 @@ change the index on when to coup
 game_info: Optional[GameInfo] = None
 bot_battle = BotBattle()
 
-our_bot = Player()
+our_bot = Player(game_info.own_cards, game_info.players_cards_num)
 
 # gets the closes player that is left alive in turn order
 # clockwise(?) and returns their index
