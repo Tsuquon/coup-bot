@@ -1,6 +1,7 @@
 from submission_helper.bot_battle import BotBattle
 from submission_helper.state import *
 from submission_helper.enums import *
+from player import Player
 from typing import Optional
 
 
@@ -13,6 +14,8 @@ change the index on when to coup
 
 game_info: Optional[GameInfo] = None
 bot_battle = BotBattle()
+
+our_bot = Player()
 
 
 def get_next_alive_player():
