@@ -1,8 +1,20 @@
 from submission_helper.bot_battle import BotBattle
 from submission_helper.state import *
 from submission_helper.enums import *
-from player import Player
 from typing import Optional
+
+class Player:
+    
+    def __init__(self, cards, no_of_cards):
+        self.cards = cards
+        self.no_of_cards = no_of_cards
+        self.get_data()
+        
+    def get_data(self):
+        print(self.cards, self.no_of_cards)
+        
+
+
 
 
 '''
