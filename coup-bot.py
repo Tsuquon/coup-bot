@@ -4,6 +4,13 @@ from submission_helper.enums import *
 from typing import Optional
 
 
+'''
+Notes:
+change the index on when to coup
+
+
+'''
+
 game_info: Optional[GameInfo] = None
 bot_battle = BotBattle()
 
@@ -37,7 +44,7 @@ def move_controller(requested_move: RequestedMove):
 
 
 def primary_action_handler():
-    if game_info.balances[game_info.player_id] >= 7:
+    if game_info.balances[game_info.player_id] >= 10:
         target_player_id = get_next_alive_player()
         bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
     else:
