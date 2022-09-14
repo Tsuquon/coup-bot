@@ -28,7 +28,6 @@ change the index on when to coup
 game_info: Optional[GameInfo] = None
 bot_battle = BotBattle()
 
-our_bot = Player(game_info.own_cards, game_info.players_cards_num)
 
 # gets the closes player that is left alive in turn order
 # clockwise(?) and returns their index
@@ -67,6 +66,11 @@ def primary_action_handler():
     if game_info.balances[game_info.player_id] >= 10:
         target_player_id = get_next_alive_player()
         bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
+        
+    if game_info.balances[game_info.player_id] >= 3:
+        target_player_id = get_next_alive_player()
+        bot_battle.play_primary_action(PrimaryAction.Assassinate, target_player_id)
+        
     else:
         bot_battle.play_primary_action(PrimaryAction.Income)
 
