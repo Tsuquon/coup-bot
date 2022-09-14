@@ -13,6 +13,10 @@ class Player:
         
     def get_data(self):
         return self.cards, self.no_of_cards
+    
+    def update_data(self, cards, no_of_cards):
+        self.cards = cards
+        self.no_of_cards = no_of_cards
         
 class Board:
     
@@ -25,6 +29,11 @@ class Board:
     
     def get_current_cards(self):
         return self.current_cards
+    
+    def update_data(self, balance, current_cards):
+        self.balance = balance
+        self.current_cards = current_cards
+        
 '''
 Notes:
 change the index on when to coup
@@ -35,24 +44,29 @@ change the index on when to coup
 game_info: Optional[GameInfo] = None
 bot_battle = BotBattle()
 run_once = False
+new_player = None
+new_board = None
 
 
 def personal_function():
-    global run_once
+    global run_once, new_player, new_board
     
     if run_once == False:
         new_player = Player(game_info.own_cards, game_info.player_id)
         new_board  = Board(game_info.balances, game_info.players_cards_num) 
         run_once = True
     
+    new_player.update_data(game_info.own_cards, game_info.players_cards_num[game_info.player_id])
+    new_board.update_data(game_info.balances, game_info.players_cards_num)
+    
     try:
-        print("player info:", new_player.get_data())
-        print("other player balance", new_board.get_balance())
-        print("other players card num", new_board.get_current_cards())
+        print("player info:", new_player.get_data(), flush=True)
+        print("other player balance", new_board.get_balance(), flush=True)
+        print("other players card num", new_board.get_current_cards(), flush=True)
     
     except UnboundLocalError as e:
-        print("Error with new player")
-        print(e)
+        print("Error with new player", flush=True)
+        print(e, flush=True)
     
     
 
