@@ -12,10 +12,19 @@ class Player:
         self.player_id = player_id
         
     def get_data(self):
-        print(self.cards, self.no_of_cards)
+        return self.cards, self.no_of_cards
         
+class Board:
+    
+    def __init__(self, balance, current_cards):
+        self.balance = balance # List of int
+        self.current_cards = current_cards # List of int
 
-
+    def get_balance(self):
+        return self.balance
+    
+    def get_current_cards(self):
+        return self.current_cards
 '''
 Notes:
 change the index on when to coup
@@ -25,10 +34,27 @@ change the index on when to coup
 
 game_info: Optional[GameInfo] = None
 bot_battle = BotBattle()
+run_once = False
 
 
-def setup():
-    new_player = Player(game_info.own_cards, game_info.player_id)
+def personal_function():
+    global run_once
+    
+    if run_once == False:
+        new_player = Player(game_info.own_cards, game_info.player_id)
+        new_board  = Board(game_info.balances, game_info.players_cards_num) 
+        run_once = True
+    
+    try:
+        print("player info:", new_player.get_data())
+        print("other player balance", new_board.get_balance())
+        print("other players card num", new_board.get_current_cards())
+    
+    except UnboundLocalError as e:
+        print("Error with new player")
+        print(e)
+    
+    
 
 
 # gets the closes player that is left alive in turn order
@@ -113,8 +139,10 @@ def discard_choice_handler():
 
 # Gets fresh data on every instance and checks if we need to 
 # perform a move
-if __name__ == "__main__":
+if __name__ == "__main__":   
+    
     while True:
         game_info = bot_battle.get_game_info()
+        personal_function()
         move_controller(game_info.requested_move)
-        setup()
+        
