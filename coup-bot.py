@@ -26,7 +26,9 @@ change the index on when to coup
 game_info: Optional[GameInfo] = None
 bot_battle = BotBattle()
 
-new_player = Player(game_info.own_cards, game_info.player_id)
+
+def setup():
+    new_player = Player(game_info.own_cards, game_info.player_id)
 
 
 # gets the closes player that is left alive in turn order
@@ -72,7 +74,7 @@ def primary_action_handler():
         bot_battle.play_primary_action(PrimaryAction.Assassinate, target_player_id)
         
     else:
-        bot_battle.play_primary_action(PrimaryAction.Income)
+        bot_battle.play_primary_action(PrimaryAction.Tax)
 
 # TODO: add logic here for when we want to counter
 def counter_action_handler():
@@ -90,7 +92,10 @@ def challenge_response_handler():
 # strategy in the following order
 # Captain > Assassin > Contessa > Duke > Ambassador
 def discard_choice_handler():
-    if contains(game_info.own_cards, Character.Ambassador):
+    if len(game_info.own_cards):
+        bot_battle.play_discard_choice(0)
+    
+    elif contains(game_info.own_cards, Character.Ambassador):
         # how do we know which index the Ambassador card is in?
         bot_battle.play_discard_choice(1) # discard Ambassador instead of Assassin or Captain
     
@@ -112,3 +117,4 @@ if __name__ == "__main__":
     while True:
         game_info = bot_battle.get_game_info()
         move_controller(game_info.requested_move)
+        setup()
