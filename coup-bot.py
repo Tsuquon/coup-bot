@@ -6,16 +6,14 @@ from typing import Optional
 
 class Player:
     
-    def __init__(self, cards, no_of_cards):
+    def __init__(self, cards, player_id: int):
         self.cards = cards
-        self.no_of_cards = no_of_cards
-        self.get_data()
+        self.no_of_cards = 2
+        self.player_id = player_id
         
     def get_data(self):
         print(self.cards, self.no_of_cards)
         
-
-
 
 
 '''
@@ -27,6 +25,8 @@ change the index on when to coup
 
 game_info: Optional[GameInfo] = None
 bot_battle = BotBattle()
+
+new_player = Player(game_info.own_cards, game_info.player_id)
 
 
 # gets the closes player that is left alive in turn order
