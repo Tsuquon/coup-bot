@@ -195,7 +195,7 @@ def discard_choice_handler():
         for i in range(game_info.own_cards):
             if i != want_index:
                 ls.append(i)
-        botbattle.play_discard_choice(0)
+        bot_battle.play_discard_choice(0)
 
     else:
         bot_battle.play_discard_choice(0)
