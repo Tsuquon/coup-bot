@@ -3,10 +3,78 @@ from submission_helper.state import *
 from submission_helper.enums import *
 from typing import Optional
 
+class Player:
+    
+    def __init__(self, cards, player_id: int):
+        self.cards = cards
+        self.no_of_cards = 2
+        self.player_id = player_id
+        
+    def get_data(self):
+        return self.cards, self.no_of_cards, self.player_id
+    
+    def update_data(self, cards, no_of_cards):
+        self.cards = cards
+        self.no_of_cards = no_of_cards
+        
+class Board:
+    
+    def __init__(self, balance, current_cards):
+        self.balance = balance # List of int
+        self.current_cards = current_cards # List of int
+
+    def get_balance(self):
+        return self.balance
+    
+    def get_current_cards(self):
+        return self.current_cards
+    
+    def update_data(self, balance, current_cards):
+        self.balance = balance
+        self.current_cards = current_cards
+        
+    def get_num_alive_players(self):
+        num_alive = 5
+        for i in self.get_current_cards():
+            if i == 0:
+                num_alive -= 1
+        
+        return num_alive
+        
+'''
+Notes:
+change the index on when to coup
+'''
 
 game_info: Optional[GameInfo] = None
 bot_battle = BotBattle()
+
+new_player = None
+new_board = None
+
 is_last_counter_block_as_cap = True
+
+def personal_function():
+    global run_once, new_player, new_board
+    
+    if run_once == False:
+        new_player = Player(game_info.own_cards, game_info.player_id)
+        new_board  = Board(game_info.balances, game_info.players_cards_num) 
+        run_once = True
+    
+    new_player.update_data(game_info.own_cards, game_info.players_cards_num[game_info.player_id])
+    new_board.update_data(game_info.balances, game_info.players_cards_num)
+ 
+    try:
+        print("player info:", new_player.get_data(), flush=True)
+        print("other player balance", new_board.get_balance(), flush=True)
+        print("other players card num", new_board.get_current_cards(), flush=True)
+        print("Richest is", get_next_alive_player(), flush = True) 
+    
+    except UnboundLocalError as e:
+        print("Error with new player", flush=True)
+        print(e, flush=True)
+
 
 
 def get_next_alive_player():
@@ -84,4 +152,5 @@ def discard_choice_handler():
 if __name__ == "__main__":
     while True:
         game_info = bot_battle.get_game_info()
+        personal_function()
         move_controller(game_info.requested_move)
