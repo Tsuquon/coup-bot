@@ -127,11 +127,10 @@ def move_controller(requested_move: RequestedMove):
 
 def primary_action_handler():
     if game_info.balances[game_info.player_id] >= 7:
-        target_player_id = get_anticlockise_alive_player()
+        target_player_id = get_next_alive_player()
         bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
-        
     else:
-        target_player_id = get_richest_alive() 
+        target_player_id = get_anticlockwise_alive_player() 
         if new_board.get_balance()[target_player_id] == 0:
             bot_battle.play_primary_action(PrimaryAction.Income)
         else:
