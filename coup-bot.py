@@ -143,7 +143,21 @@ def primary_action_handler():
 
 # TODO: add logic here for when we want to counter
 def counter_action_handler():
-    bot_battle.play_counter_action(CounterAction.NoCounterAction)
+    primary_action = game_info.history[-1][ActionType.PrimaryAction].action
+
+
+    if primary_action == PrimaryAction.Assassinate and  indexOf(game_info.own_cards, Character.Assassin):
+        bot_battle.play_counter_action(CounterAction.BlockAssassination)
+
+    elif primary_action == PrimaryAction.ForeignAid and indexOf(game_info.own_cards, Character.Duke):
+        bot_battle.play_counter_action(CounterAction.BlockForeignAid)
+    elif primary_action == PrimaryAction.Steal:
+        if indexOf(game_info.own_cards, Character.Captain):
+            bot_battle.play_counter_action(CounterAction.BlockStealingAsCaptain)
+        else: bot_battle.play_counter_action(CounterAction.BlockStealingAsAmbassador)
+    
+    else:
+        bot_battle.play_counter_action(CounterAction.NoCounterAction)
 
 # TODO: add logic here for when we want to call someone's bluff
 def challenge_action_handler():
