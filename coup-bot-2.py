@@ -94,16 +94,16 @@ try:
         
         return next_alive
 
-    # def get_richest_alive():
-    #     ls = new_board.get_balance().copy()
-    #     ls[game_info.player_id] = -1
-    #     richest = ls.index(max(ls))
+    def get_richest_alive():
+        ls = new_board.get_balance().copy()
+        ls[game_info.player_id] = -1
+        richest = ls.index(max(ls))
         
-    #     while new_board.get_current_cards()[richest] == 0:
-    #         ls[richest] = -1
-    #         richest = new_board.get_balance().index(max(ls))
+        while new_board.get_current_cards()[richest] == 0:
+            ls[richest] = -1
+            richest = new_board.get_balance().index(max(ls))
             
-    #     return richest
+        return richest
 
         
     
@@ -132,7 +132,13 @@ try:
         #     bot_battle.play_primary_action(PrimaryAction.Exchange)
         #     return
 
-        if game_info.balances[game_info.player_id] >= 7:
+        # if there are 3 or less players and we have enough money, just assassinate the richest player
+        if new_board.get_num_alive_players() <= 3: # checks if there are <=3 players
+            if game_info.balances[game_info.player_id] >= 3: # checks $
+
+                bot_battle.play_primary_action(PrimaryAction.Assassinate, get_richest_alive())
+
+        elif game_info.balances[game_info.player_id] >= 7:
             target_player_id = get_next_alive_player()
             bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
             return
