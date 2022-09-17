@@ -126,7 +126,7 @@ def move_controller(requested_move: RequestedMove):
 
 
 def primary_action_handler():
-    if not(contains(game_info.own_cards, Character.Captain):
+    if not contains(game_info.own_cards, Character.Captain):
         bot_battle.play_primary_action(PrimaryAction.Exchange)
            
     elif game_info.balances[game_info.player_id] >= 7:
