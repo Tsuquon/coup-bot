@@ -99,6 +99,8 @@ try:
         ls[game_info.player_id] = -1
         richest = ls.index(max(ls))
         
+        print("richest is player: "+richest+" with money "+ls[richest])
+        
         while new_board.get_current_cards()[richest] == 0:
             ls[richest] = -1
             richest = new_board.get_balance().index(max(ls))
