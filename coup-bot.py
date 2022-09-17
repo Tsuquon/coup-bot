@@ -170,8 +170,12 @@ def primary_action_handler():
 # TODO: add logic here for when we want to counter
 def counter_action_handler():
     primary_action = game_info.history[-1][ActionType.PrimaryAction].action
-
-    if primary_action == PrimaryAction.Assassinate and Character.Assassin in (game_info.own_cards) :
+    # first command is what other players do
+    
+    if primary_action == PrimaryAction.Assassinate and new_player.no_of_cards == 1:
+        bot_battle.play_counter_action(CounterAction.BlockAssassination)
+    
+    if primary_action == PrimaryAction.Assassinate and Character.Contessa in (game_info.own_cards) :
         bot_battle.play_counter_action(CounterAction.BlockAssassination)
 
     elif primary_action == PrimaryAction.ForeignAid and Character.Duke in (game_info.own_cards):
@@ -190,11 +194,16 @@ def counter_action_handler():
 
 
 
-# TODO: add logic here for when we want to call someone's bluff
+# TODO: We challenge someone
 def challenge_action_handler():
+    primary_action = game_info.history[-1][ActionType.PrimaryAction].action
+   
+    if new_player.no_of_cards == 1 and Character.Contessa not in game_info.own_cards and primary_action == PrimaryAction.Assassinate:
+        bot_battle.play_challenge_action(ChallengeAction.Challenge)
+    
     bot_battle.play_challenge_action(ChallengeAction.NoChallenge)
 
-# TODO: is this the part that asks us if we're lying or not?
+# TODO: We get challenged
 def challenge_response_handler():
     previous_action = get_previous_action_in_turn()
 
