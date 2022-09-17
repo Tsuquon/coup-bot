@@ -82,17 +82,15 @@ def get_previous_action_in_turn() -> Action:
 
 def get_richest_alive():
     #Not sure what to do if richest ppl = same number of coins 
-    ls = new_board.get_balance()
-    ls[game_info.player_id] = -1
-    richest = new_board.get_balance().index(max(new_board.get_balance()))
+    list_2 = new_board.get_balance().copy()
+    list_2.sort()
+    if list_2[-1] == game_info.player_id and list_2[-2] != list_2[-1]:
+        return list_2.index(list_2[-2])
     
-    while new_board.get_current_cards()[richest] == 0:
-        ls[richest] = -1
-        richest = new_board.get_balance().index(max(new_board.get_balance()))
+    else:
+        return list_2.index(list_2[-1])
         
-
-    return richest
-
+        
 # gets the closes player that is left alive in turn order
 # clockwise(?) and returns their index
 def get_next_alive_player():
@@ -147,7 +145,7 @@ def primary_action_handler():
     elif game_info.balances[game_info.player_id] >= 3 and assassin_challenged == False and new_board.get_num_alive_players() == 2:
         bot_battle.play_primary_action(PrimaryAction.Assassinate, get_next_alive_player())
         
-    elif game_info.balances[get_left_alive_player()] >= 3 and game_info.balances[game_info.player_id] >= 3 and assassin_challenged == False: # TODO: If player gets challenged after assassinate, do something
+    elif game_info.balances[game_info.player_id] >= 3 and game_info.balances[game_info.player_id] >= 3 and assassin_challenged == False: # TODO: If player gets challenged after assassinate, do something
         bot_battle.play_primary_action(PrimaryAction.Assassinate, get_left_alive_player())
     
     elif duke_challenged == False: # TODO: If player gets challenged after tax, change these to true
@@ -267,3 +265,8 @@ if __name__ == "__main__":
         game_info = bot_battle.get_game_info()
         personal_function()
         move_controller(game_info.requested_move)
+
+
+# Notes:
+# If assassinating and they block with contessa, shouldn't try and assassinate them again
+# If one card, they block, then challenge, and if they are about to coup us.
