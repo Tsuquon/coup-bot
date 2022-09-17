@@ -2,6 +2,7 @@ from submission_helper.bot_battle import BotBattle
 from submission_helper.state import *
 from submission_helper.enums import *
 from typing import Optional
+from operator import contains
 
 class Player:
     
@@ -76,6 +77,7 @@ def personal_function():
     except UnboundLocalError as e:
         print("Error with new player", flush=True)
         print(e, flush=True)
+
 
 def get_anticlockwise_alive_player():
     left_alive = (game_info.player_id - 1) % 5
@@ -166,11 +168,61 @@ def challenge_action_handler():
 
 
 def challenge_response_handler():
-    bot_battle.play_challenge_response(0)
+    card_index= 0
+
+    previous_action = list(game_info.history[-1].values())[-1]
+
+    if previous_action.action_type == ActionType.CounterAction:
+        counter_action = game_info.history[-1][ActionType.CounterAction].action
+
+        # If we have the card we used, lets reveal it
+        if counter_action == CounterAction.BlockAssassination:
+            card_index = game_info.own_cards.index(Character.Contessa)
+        elif counter_action == CounterAction.BlockStealingAsAmbassador:
+            card_index = game_info.own_cards.index(Character.Ambassador)
+        elif counter_action == CounterAction.BlockStealingAsCaptain:
+            card_index = game_info.own_cards.index(Character.Captain)
+        elif counter_action == CounterAction.BlockForeignAid:
+            card_index = game_info.own_cards.index(Character.Duke)
+
+    bot_battle.play_challenge_response(card_index)
 
 
 def discard_choice_handler():
-    bot_battle.play_discard_choice(0)
+    primary_action = game_info.history[-1][ActionType.PrimaryAction]
+    
+    if primary_action.action == PrimaryAction.Exchange and primary_action.successful: 
+        print(game_info.own_cards, flush=True)
+        if contains(game_info.own_cards, Character.Captain):
+            want_index = game_info.own_cards.index(Character.Captain)
+            ls= []
+            for i in range(game_info.own_cards):
+                if i != want_index:
+                    ls.append(i)
+
+        bot_battle.play_discard_choice(ls[1])
+        bot_battle.play_discard_choice(ls[0])
+    else:
+       
+        if len(game_info.own_cards) == 1:
+            bot_battle.play_discard_choice(0)
+        
+        elif len(game_info.own_cards) == 2:
+            if contains(game_info.own_cards, Character.Ambassador):
+                # how do we know which index the Ambassador card is in?
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Ambassador)) # discard Ambassador instead of Assassin or Captain
+            
+            elif contains(game_info.own_cards, Character.Duke):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Duke))# discard Duke instead of Assassin or Captain
+
+            elif contains(game_info.own_cards, Character.Contessa):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Contessa)) # discard Contessa instead of Assassin or Captain
+
+            elif contains(game_info.own_cards, Character.Assassin):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Assassin)) # discard Assassin instead of Assassin or Captain
+
+            else:
+                bot_battle.play_discard_choice(0) # discard whatever else instead of Captain    bot_battle.play_discard_choice(0)
 
 
 if __name__ == "__main__":
