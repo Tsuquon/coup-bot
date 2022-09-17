@@ -52,8 +52,9 @@ bot_battle = BotBattle()
 run_once = False
 new_player = None
 new_board = None
-duke_challenged = False
-assassin_challenged = False
+duke_blocked = False
+assassin_blocked = False
+steal_blocked = False
 
 is_last_counter_block_as_cap = True
 
@@ -128,7 +129,10 @@ def move_controller(requested_move: RequestedMove):
 
 
 def primary_action_handler():
-    if game_info.balances[game_info.player_id] >= 7:
+    if not contains(game_info.own_cards, Character.Captain):
+        bot_battle.play_primary_action(PrimaryAction.Exchange)
+           
+    elif game_info.balances[game_info.player_id] >= 7:
         target_player_id = get_next_alive_player()
         bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
     else:
@@ -177,10 +181,14 @@ def challenge_response_handler():
 
         # If we have the card we used, lets reveal it
         if counter_action == CounterAction.BlockAssassination:
+            assassin_blocked = True
             card_index = game_info.own_cards.index(Character.Contessa)
         elif counter_action == CounterAction.BlockStealingAsAmbassador:
+            steal_blocked = True
             card_index = game_info.own_cards.index(Character.Ambassador)
         elif counter_action == CounterAction.BlockStealingAsCaptain:
+            steal_blocked = True
+            card_index = game_info.own_cards.index(Character.Ambassador)
             card_index = game_info.own_cards.index(Character.Captain)
         elif counter_action == CounterAction.BlockForeignAid:
             card_index = game_info.own_cards.index(Character.Duke)
@@ -200,29 +208,20 @@ def discard_choice_handler():
                 if i != want_index:
                     ls.append(i)
 
-        bot_battle.play_discard_choice(ls[1])
-        bot_battle.play_discard_choice(ls[0])
+            bot_battle.play_discard_choice(ls[1])
+            bot_battle.play_discard_choice(ls[0])
+    
+    
+    elif contains(game_info.own_cards, Character.Captain):
+        want_index = game_info.own_cards.index(Character.captain)
+        ls = []
+        for i in range(game_info.own_cards):
+            if i != want_index:
+                ls.append(i)
+        bot_battle.play_discard_choice(0)
+
     else:
-       
-        if len(game_info.own_cards) == 1:
-            bot_battle.play_discard_choice(0)
-        
-        elif len(game_info.own_cards) == 2:
-            if contains(game_info.own_cards, Character.Ambassador):
-                # how do we know which index the Ambassador card is in?
-                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Ambassador)) # discard Ambassador instead of Assassin or Captain
-            
-            elif contains(game_info.own_cards, Character.Duke):
-                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Duke))# discard Duke instead of Assassin or Captain
-
-            elif contains(game_info.own_cards, Character.Contessa):
-                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Contessa)) # discard Contessa instead of Assassin or Captain
-
-            elif contains(game_info.own_cards, Character.Assassin):
-                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Assassin)) # discard Assassin instead of Assassin or Captain
-
-            else:
-                bot_battle.play_discard_choice(0) # discard whatever else instead of Captain    bot_battle.play_discard_choice(0)
+        bot_battle.play_discard_choice(0)
 
 
 if __name__ == "__main__":
