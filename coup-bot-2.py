@@ -94,7 +94,7 @@ def get_next_alive_player():
     return next_alive
 
 def get_richest_alive():
-    ls = new_board.get_balance()
+    ls = new_board.get_balance().copy()
     ls[game_info.player_id] = -1
     richest = new_board.get_balance().index(max(new_board.get_balance()))
     
@@ -129,18 +129,31 @@ def move_controller(requested_move: RequestedMove):
 
 
 def primary_action_handler():
-    if not contains(game_info.own_cards, Character.Captain):
+    if not contains(game_info.own_cards, Character.Captain) and Character.Ambassador in game_info.own_cards:
         bot_battle.play_primary_action(PrimaryAction.Exchange)
-           
+        return
+
     elif game_info.balances[game_info.player_id] >= 7:
         target_player_id = get_next_alive_player()
         bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
+        return
+    
+    if duke_blocked == False:
+        bot_battle.play_primary_action(PrimaryAction.Tax)
+        return
+
     else:
         target_player_id = get_anticlockwise_alive_player() 
-        if new_board.get_balance()[target_player_id] == 0:
-            bot_battle.play_primary_action(PrimaryAction.Income)
+        if new_board.get_balance()[target_player_id] < 2:
+            bot_battle.play_primary_action(PrimaryAction.Steal, get_richest_alive())
+        
+        
         else:
             bot_battle.play_primary_action(PrimaryAction.Steal, target_player_id)
+    
+        bot_battle.play_primary_action(PrimaryAction.Income)
+        return
+
 
 
 # Launches a counter action depending on what the last primary action was
@@ -152,7 +165,7 @@ def counter_action_handler():
     if primary_action == PrimaryAction.Assassinate:
         bot_battle.play_counter_action(CounterAction.BlockAssassination)
 
-    elif primary_action == PrimaryAction.ForeignAid:
+    elif primary_action == PrimaryAction.ForeignAid and Character.Duke in game_info.own_cards:
         bot_battle.play_counter_action(CounterAction.BlockForeignAid)
 
     elif primary_action == PrimaryAction.Steal:
@@ -172,7 +185,7 @@ def challenge_action_handler():
 
 
 def challenge_response_handler():
-    card_index= 0
+    card_index = 0
 
     previous_action = list(game_info.history[-1].values())[-1]
 
