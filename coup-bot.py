@@ -154,7 +154,8 @@ def counter_action_handler():
     elif primary_action == PrimaryAction.Steal:
         if indexOf(game_info.own_cards, Character.Captain):
             bot_battle.play_counter_action(CounterAction.BlockStealingAsCaptain)
-        else: bot_battle.play_counter_action(CounterAction.BlockStealingAsAmbassador)
+        else: 
+            bot_battle.play_counter_action(CounterAction.BlockStealingAsAmbassador)
     
     else:
         bot_battle.play_counter_action(CounterAction.NoCounterAction)
