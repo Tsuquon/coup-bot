@@ -144,8 +144,15 @@ def primary_action_handler():
 # TODO: add logic here for when we want to counter
 def counter_action_handler():
     primary_action = game_info.history[-1][ActionType.PrimaryAction].action
-
-
+    
+    
+    #if primary_action == PrimaryAction.Assassinate:
+    #   bot_battle.play_counter_action(CounterAction.BlockAssassination)
+    #elif primary_action == PrimaryAction.ForeignAid:
+    #   bot_battle.play_counter_action(CounterAction.BlockForeignAid)
+    #elif primary_action == PrimaryAction.Steal:
+    #   bot_battle.play_counter_action(CounterAction.BlockStealingAsAmbassador)
+    
     if primary_action == PrimaryAction.Assassinate and  indexOf(game_info.own_cards, Character.Assassin):
         bot_battle.play_counter_action(CounterAction.BlockAssassination)
 
