@@ -247,24 +247,39 @@ def challenge_response_handler():
 # strategy in the following order
 # Captain > Assassin > Contessa > Duke > Ambassador
 def discard_choice_handler():
-    if len(game_info.own_cards):
-        bot_battle.play_discard_choice(0)
+    primary_action = game_info.history[-1][ActionType.PrimaryAction]
     
-    elif contains(game_info.own_cards, Character.Ambassador):
-        # how do we know which index the Ambassador card is in?
-        bot_battle.play_discard_choice(1) # discard Ambassador instead of Assassin or Captain
-    
-    elif contains(game_info.own_cards, Character.Duke):
-        bot_battle.play_discard_choice(1)# discard Duke instead of Assassin or Captain
+    if primary_action.action == PrimaryAction.Exchange and primary_action.successful: 
+        print(game_info.own_cards, flush=True)
+        if contains(game_info.own_cards, Character.Captain):
+            want_index = game_info.own_cards.index(Character.Captain)
+            ls= []
+            for i in range(game_info.own_cards):
+                if i != want_index:
+                    ls.append(i)
 
-    elif contains(game_info.own_cards, Character.Contessa):
-        bot_battle.play_discard_choice(1) # discard Contessa instead of Assassin or Captain
-
-    elif contains(game_info.own_cards, Character.Assassin):
-        bot_battle.play_discard_choice(1) # discard Assassin instead of Assassin or Captain
-
+        bot_battle.play_discard_choice(ls[1])
+        bot_battle.play_discard_choice(ls[0])
     else:
-        bot_battle.play_discard_choice(0) # discard whatever else instead of Captain
+        
+        if len(game_info.own_cards):
+            bot_battle.play_discard_choice(0)
+
+        elif contains(game_info.own_cards, Character.Ambassador):
+            # how do we know which index the Ambassador card is in?
+            bot_battle.play_discard_choice(1) # discard Ambassador instead of Assassin or Captain
+
+        elif contains(game_info.own_cards, Character.Duke):
+            bot_battle.play_discard_choice(1)# discard Duke instead of Assassin or Captain
+
+        elif contains(game_info.own_cards, Character.Contessa):
+            bot_battle.play_discard_choice(1) # discard Contessa instead of Assassin or Captain
+
+        elif contains(game_info.own_cards, Character.Assassin):
+            bot_battle.play_discard_choice(1) # discard Assassin instead of Assassin or Captain
+
+        else:
+            bot_battle.play_discard_choice(0) # discard whatever else instead of Captain
 
 # Gets fresh data on every instance and checks if we need to 
 # perform a move
