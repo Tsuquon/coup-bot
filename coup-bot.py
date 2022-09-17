@@ -80,6 +80,13 @@ def get_next_alive_player():
     
     return next_alive
 
+# gets the closest player on the anticlockwise direction and returns index
+def get_left_alive_player():
+    left_alive = (game_info.player_id - 1) % 5
+    while game_info.players_cards_num[left_alive] == 0:
+        left_alive = (left_alive + 1)% 5
+    return left_alive
+
 
 # Calls the appropriate function for the action requested
 # of us. Could be a primary actoin, challenge, counter, 
