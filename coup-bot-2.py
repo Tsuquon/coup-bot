@@ -122,7 +122,7 @@ def move_controller(requested_move: RequestedMove):
 
 
 def primary_action_handler():
-   if game_info.balances[game_info.player_id] >= 7:
+    if game_info.balances[game_info.player_id] >= 7:
         target_player_id = get_left_alive_player()
         bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
         
