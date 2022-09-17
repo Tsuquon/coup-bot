@@ -75,7 +75,11 @@ def personal_function():
         print("Error with new player", flush=True)
         print(e, flush=True)
 
-
+def get_anticlockwise_alive_player():
+    left_alive = (game_info.player_id - 1) % 5
+    while game_info.players_cards_num[left_alive] == 0:
+        left_alive = (left_alive - 1 )% 5
+    return left_alive
 
 def get_next_alive_player():
     next_alive = (game_info.player_id + 1) % 5
@@ -84,7 +88,17 @@ def get_next_alive_player():
     
     return next_alive
 
+def get_richest_alive():
+    list_2 = new_board.get_balance().copy()
+    list_2.sort()
+    if list_2[-1] == game_info.player_id and list_2[-2] != list_2[-1]:
+        return list_2.index(list_2[-2])
+    
+    else:
+        return list_2.index(list_2[-1])
 
+    
+ 
 def move_controller(requested_move: RequestedMove):
     if requested_move == RequestedMove.PrimaryAction:
         primary_action_handler()
@@ -106,11 +120,16 @@ def move_controller(requested_move: RequestedMove):
 
 
 def primary_action_handler():
-    if game_info.balances[game_info.player_id] >= 7:
-        target_player_id = get_next_alive_player()
+   if game_info.balances[game_info.player_id] >= 7:
+        target_player_id = get_left_alive_player()
         bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
+        
     else:
-        bot_battle.play_primary_action(PrimaryAction.Income)
+        target_player_id = get_richest_alive() 
+        if new_board.get_balance()[target_player_id] == 0:
+            bot_battle.play_primary_action(PrimaryAction.Income)
+        else:
+            bot_battle.play_primary_action(PrimaryAction.Steal, target_player_id)
 
 
 # Launches a counter action depending on what the last primary action was
