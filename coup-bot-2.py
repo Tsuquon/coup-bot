@@ -48,9 +48,11 @@ change the index on when to coup
 
 game_info: Optional[GameInfo] = None
 bot_battle = BotBattle()
-
+run_once = False
 new_player = None
 new_board = None
+duke_challenged = False
+assassin_challenged = False
 
 is_last_counter_block_as_cap = True
 
