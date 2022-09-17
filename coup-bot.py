@@ -37,8 +37,6 @@ class Board:
 '''
 Notes:
 change the index on when to coup
-
-
 '''
 
 game_info: Optional[GameInfo] = None
@@ -68,8 +66,22 @@ def personal_function():
         print("Error with new player", flush=True)
         print(e, flush=True)
     
-    
+def get_previous_action_in_turn() -> Action:
+    return list(game_info.history[-1].values())[-1]
 
+def get_richest_alive():
+    #Not sure what to do if richest ppl = same number of coins 
+    ls = new_board.get_balance()
+    ls[game_info.player_id] = -1
+    richest = new_board.get_balance().index(max(new_board.get_balance()))
+    
+    while new_board.get_current_cards()[richest] == 0:
+        ls[richest] = -1
+        richest = new_board.get_balance().index(max(new_board.get_balance()))
+        
+    print("Richest is", richest, flush = True) 
+
+    return richest
 
 # gets the closes player that is left alive in turn order
 # clockwise(?) and returns their index
@@ -79,6 +91,14 @@ def get_next_alive_player():
         next_alive = (next_alive + 1) % 5
     
     return next_alive
+
+# gets the closest player on the anticlockwise direction and returns index
+def get_left_alive_player():
+    left_alive = (game_info.player_id - 1) % 5
+    while game_info.players_cards_num[left_alive] == 0:
+        left_alive = (left_alive - 1 )% 5
+    return left_alive
+
 
 
 # Calls the appropriate function for the action requested
@@ -105,20 +125,44 @@ def move_controller(requested_move: RequestedMove):
 
 # the main "play" of the game when it is our turn
 def primary_action_handler():
-    if game_info.balances[game_info.player_id] >= 10:
-        target_player_id = get_next_alive_player()
+    #if game_info.balances[get_left_alive_player()] >= 3:
+    #    target_player_id = get_left_alive_player()
+    #    bot_battle.play_primary_action(PrimaryAction.Steal, target_player_id)
+
+    if game_info.balances[game_info.player_id] >= 7:
+        target_player_id = get_left_alive_player()
         bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
         
-    if game_info.balances[game_info.player_id] >= 3:
-        target_player_id = get_next_alive_player()
-        bot_battle.play_primary_action(PrimaryAction.Assassinate, target_player_id)
-        
     else:
-        bot_battle.play_primary_action(PrimaryAction.Tax)
+        target_player_id = get_richest_alive()
+        if new_board.get_balance()[target_player_id] == 0:
+            bot_battle.play_primary_action(PrimaryAction.Income)
+        else:
+            bot_battle.play_primary_action(PrimaryAction.Steal, target_player_id)
 
+        
 # TODO: add logic here for when we want to counter
 def counter_action_handler():
-    bot_battle.play_counter_action(CounterAction.NoCounterAction)
+    primary_action = game_info.history[-1][ActionType.PrimaryAction].action
+
+    if primary_action == PrimaryAction.Assassinate and Character.Assassin in (game_info.own_cards) :
+        bot_battle.play_counter_action(CounterAction.BlockAssassination)
+
+    elif primary_action == PrimaryAction.ForeignAid and Character.Duke in (game_info.own_cards):
+        bot_battle.play_counter_action(CounterAction.BlockForeignAid)
+
+    elif primary_action == PrimaryAction.Steal and Character.Captain in (game_info.own_cards):
+            bot_battle.play_counter_action(CounterAction.BlockStealingAsCaptain)
+    
+    elif primary_action == PrimaryAction.Steal and Character.Ambassador in (game_info.own_cards):
+        bot_battle.play_counter_action(CounterAction.BlockStealingAsAmbassador)  
+
+
+    
+    else:
+        bot_battle.play_counter_action(CounterAction.NoCounterAction)
+
+
 
 # TODO: add logic here for when we want to call someone's bluff
 def challenge_action_handler():
@@ -126,7 +170,43 @@ def challenge_action_handler():
 
 # TODO: is this the part that asks us if we're lying or not?
 def challenge_response_handler():
-    bot_battle.play_challenge_response(0)
+    previous_action = get_previous_action_in_turn()
+
+    reveal_card_index = None
+
+    # Challenge was primary action
+    if previous_action.action_type == ActionType.PrimaryAction:
+        primary_action = game_info.history[-1][ActionType.PrimaryAction].action
+
+        # If we have the card we used, lets reveal it
+        if primary_action == PrimaryAction.Assassinate:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Assassin)
+        elif primary_action == PrimaryAction.Exchange:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Ambassador)
+        elif primary_action == PrimaryAction.Steal:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Captain)
+        elif primary_action == PrimaryAction.Tax:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Duke)
+
+        # Challenge was counter action
+    elif previous_action.action_type == ActionType.CounterAction:
+        counter_action = game_info.history[-1][ActionType.CounterAction].action
+
+        # If we have the card we used, lets reveal it
+        if counter_action == CounterAction.BlockAssassination:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Contessa)
+        elif counter_action == CounterAction.BlockStealingAsAmbassador:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Ambassador)
+        elif counter_action == CounterAction.BlockStealingAsCaptain:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Captain)
+        elif counter_action == CounterAction.BlockForeignAid:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Duke)
+        
+        # If we lied, let's reveal our first card
+    if reveal_card_index == None or reveal_card_index == -1:
+        reveal_card_index = 0
+
+    bot_battle.play_challenge_response(reveal_card_index)
 
 # TODO: discards the card of least value to prepare for endgame
 # strategy in the following order
@@ -159,4 +239,3 @@ if __name__ == "__main__":
         game_info = bot_battle.get_game_info()
         personal_function()
         move_controller(game_info.requested_move)
-        
