@@ -74,7 +74,7 @@ try:
             print("player info:", new_player.get_data(), flush=True)
             print("other player balance", new_board.get_balance(), flush=True)
             print("other players card num", new_board.get_current_cards(), flush=True)
-            print("Richest is", get_richest_alive(), flush = True) 
+            # print("Richest is", get_richest_alive(), flush = True) 
         
         except UnboundLocalError as e:
             print("Error with new player", flush=True)
@@ -94,16 +94,16 @@ try:
         
         return next_alive
 
-    def get_richest_alive():
-        ls = new_board.get_balance().copy()
-        ls[game_info.player_id] = -1
-        richest = ls.index(max(ls))
+    # def get_richest_alive():
+    #     ls = new_board.get_balance().copy()
+    #     ls[game_info.player_id] = -1
+    #     richest = ls.index(max(ls))
         
-        while new_board.get_current_cards()[richest] == 0:
-            ls[richest] = -1
-            richest = new_board.get_balance().index(max(ls))
+    #     while new_board.get_current_cards()[richest] == 0:
+    #         ls[richest] = -1
+    #         richest = new_board.get_balance().index(max(ls))
             
-        return richest
+    #     return richest
 
         
     
@@ -128,23 +128,23 @@ try:
 
 
     def primary_action_handler():
-        if not contains(game_info.own_cards, Character.Captain) and Character.Ambassador in game_info.own_cards:
-            bot_battle.play_primary_action(PrimaryAction.Exchange)
-            return
+        # if not contains(game_info.own_cards, Character.Captain) and Character.Ambassador in game_info.own_cards:
+        #     bot_battle.play_primary_action(PrimaryAction.Exchange)
+        #     return
 
-        elif game_info.balances[game_info.player_id] >= 7:
+        if game_info.balances[game_info.player_id] >= 7:
             target_player_id = get_next_alive_player()
             bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
             return
         
-        if duke_blocked == False:
+        elif duke_blocked == False:
             bot_battle.play_primary_action(PrimaryAction.Tax)
             return
 
         else:
             target_player_id = get_anticlockwise_alive_player() 
             if new_board.get_balance()[target_player_id] < 2:
-                bot_battle.play_primary_action(PrimaryAction.Steal, get_richest_alive())
+                bot_battle.play_primary_action(PrimaryAction.Steal, get_next_alive_player())
                 return
             
             
@@ -211,35 +211,35 @@ try:
     def discard_choice_handler():
         primary_action = game_info.history[-1][ActionType.PrimaryAction]
         
-        if primary_action.action == PrimaryAction.Exchange and primary_action.successful: 
-            print(game_info.own_cards, flush=True)
-            if contains(game_info.own_cards, Character.Captain):
-                want_index = game_info.own_cards.index(Character.Captain)
-                ls = game_info.own_cards
-                ls.pop(want_index)
+        # if primary_action.action == PrimaryAction.Exchange and primary_action.successful: 
+        #     print(game_info.own_cards, flush=True)
+        
+        #     if contains(game_info.own_cards, Character.Captain):
+        #         want_index = game_info.own_cards.index(Character.Captain)
+        #         ls = game_info.own_cards
+        #         ls.pop(want_index)
 
-                bot_battle.play_discard_choice(ls[1])
-                bot_battle.play_discard_choice(ls[0])
+        #         bot_battle.play_discard_choice(ls[1])
+        #         bot_battle.play_discard_choice(ls[0])
 
-        else:
-            if len(game_info.own_cards) == 1:
-                bot_battle.play_discard_choice(0)
+        if len(game_info.own_cards) == 1:
+            bot_battle.play_discard_choice(0)
+        
+        elif len(game_info.own_cards) == 2:
+            if contains(game_info.own_cards, Character.Contessa):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Contessa)) # discard Contessa instead of Assassin or Captain
             
-            elif len(game_info.own_cards) == 2:
-                if contains(game_info.own_cards, Character.Contessa):
-                    bot_battle.play_discard_choice(game_info.own_cards.index(Character.Contessa)) # discard Contessa instead of Assassin or Captain
-                
-                elif contains(game_info.own_cards, Character.Duke):
-                    bot_battle.play_discard_choice(game_info.own_cards.index(Character.Duke))# discard Duke instead of Assassin or Captain
-                
-                elif contains(game_info.own_cards, Character.Assassin):
-                    bot_battle.play_discard_choice(game_info.own_cards.index(Character.Assassin)) # discard Assassin instead of Assassin or Captain
-                
-                elif contains(game_info.own_cards, Character.Ambassador):
-                    bot_battle.play_discard_choice(game_info.own_cards.index(Character.Ambassador)) # discard Ambassador instead of Assassin or Captain
+            elif contains(game_info.own_cards, Character.Duke):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Duke))# discard Duke instead of Assassin or Captain
+            
+            elif contains(game_info.own_cards, Character.Assassin):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Assassin)) # discard Assassin instead of Assassin or Captain
+            
+            elif contains(game_info.own_cards, Character.Ambassador):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Ambassador)) # discard Ambassador instead of Assassin or Captain
 
-                else:
-                    bot_battle.play_discard_choice(0)
+            else:
+                bot_battle.play_discard_choice(0)
 
 except Exception as e:
     print(e)
