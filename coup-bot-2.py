@@ -213,13 +213,13 @@ try:
         
         if primary_action.action == PrimaryAction.Exchange and primary_action.successful: 
             print(game_info.own_cards, flush=True)
-        if contains(game_info.own_cards, Character.Captain):
-            want_index = game_info.own_cards.index(Character.Captain)
-            ls = game_info.own_cards
-            ls.pop(want_index)
+            if contains(game_info.own_cards, Character.Captain):
+                want_index = game_info.own_cards.index(Character.Captain)
+                ls = game_info.own_cards
+                ls.pop(want_index)
 
-            bot_battle.play_discard_choice(ls[1])
-            bot_battle.play_discard_choice(ls[0])
+                bot_battle.play_discard_choice(ls[1])
+                bot_battle.play_discard_choice(ls[0])
 
         else:
             if len(game_info.own_cards) == 1:
