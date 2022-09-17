@@ -166,25 +166,19 @@ try:
     # Launches a counter action depending on what the last primary action was
     # This tests whether reading the history is functional and whether counter
     def counter_action_handler():
-        global is_last_counter_block_as_cap
         primary_action = game_info.history[-1][ActionType.PrimaryAction].action
-
-        if primary_action == PrimaryAction.Assassinate:
+        
+        if primary_action == PrimaryAction.Assassinate and contains(game_info.own_cards, Character.Contessa)
             bot_battle.play_counter_action(CounterAction.BlockAssassination)
 
-        elif primary_action == PrimaryAction.ForeignAid and Character.Duke in game_info.own_cards:
+        elif primary_action == PrimaryAction.ForeignAid and contains(game_info.own_cards, Character.Duke):
             bot_battle.play_counter_action(CounterAction.BlockForeignAid)
 
         elif primary_action == PrimaryAction.Steal:
-            if is_last_counter_block_as_cap:
+            if contains (game_info.own_cards, Character.Ambassador):
                 bot_battle.play_counter_action(CounterAction.BlockStealingAsAmbassador) 
             else:
                 bot_battle.play_counter_action(CounterAction.BlockStealingAsCaptain)
-
-            is_last_counter_block_as_cap = not is_last_counter_block_as_cap
-        
-        else:
-            bot_battle.play_counter_action(CounterAction.NoCounterAction)
             
 
     def challenge_action_handler():
