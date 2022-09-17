@@ -2,6 +2,7 @@ from submission_helper.bot_battle import BotBattle
 from submission_helper.state import *
 from submission_helper.enums import *
 from typing import Optional
+from operator import contains
 
 class Player:
     
