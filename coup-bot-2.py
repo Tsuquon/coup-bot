@@ -94,18 +94,18 @@ try:
         
         return next_alive
 
-    def get_richest_alive():
-        ls = new_board.get_balance().copy()
-        ls[game_info.player_id] = -1
-        richest = ls.index(max(ls))
+    # def get_richest_alive():
+    #     ls = new_board.get_balance().copy()
+    #     ls[game_info.player_id] = -1
+    #     richest = ls.index(max(ls))
+
+    #     print("richest is player: "+richest+" with money "+ls[richest], flush=True)
         
-        print("richest is player: "+richest+" with money "+ls[richest])
-        
-        while new_board.get_current_cards()[richest] == 0:
-            ls[richest] = -1
-            richest = new_board.get_balance().index(max(ls))
+    #     while new_board.get_current_cards()[richest] == 0: # syntax?? 
+    #         ls[richest] = -1 # eliminate players that are dead: we can't steal from them
+    #         richest = new_board.get_balance().index(max(ls))
             
-        return richest
+    #     return richest
 
         
     
@@ -135,12 +135,12 @@ try:
         #     return
 
         # if there are 3 or less players and we have enough money, just assassinate the richest player
-        if new_board.get_num_alive_players() <= 3: # checks if there are <=3 players
-            if game_info.balances[game_info.player_id] >= 3: # checks $
+        # if new_board.get_num_alive_players() <= 3: # checks if there are <=3 players
+        #     if game_info.balances[game_info.player_id] >= 3: # checks $
 
-                bot_battle.play_primary_action(PrimaryAction.Assassinate, get_richest_alive())
+        #         bot_battle.play_primary_action(PrimaryAction.Assassinate, get_richest_alive())
 
-        elif game_info.balances[game_info.player_id] >= 7:
+        if game_info.balances[game_info.player_id] >= 7:
             target_player_id = get_next_alive_player()
             bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
             return
@@ -166,19 +166,25 @@ try:
     # Launches a counter action depending on what the last primary action was
     # This tests whether reading the history is functional and whether counter
     def counter_action_handler():
+        global is_last_counter_block_as_cap
         primary_action = game_info.history[-1][ActionType.PrimaryAction].action
-        
-        if primary_action == PrimaryAction.Assassinate and contains(game_info.own_cards, Character.Contessa)
+
+        if primary_action == PrimaryAction.Assassinate:
             bot_battle.play_counter_action(CounterAction.BlockAssassination)
 
-        elif primary_action == PrimaryAction.ForeignAid and contains(game_info.own_cards, Character.Duke):
+        elif primary_action == PrimaryAction.ForeignAid and Character.Duke in game_info.own_cards:
             bot_battle.play_counter_action(CounterAction.BlockForeignAid)
 
         elif primary_action == PrimaryAction.Steal:
-            if contains (game_info.own_cards, Character.Ambassador):
+            if is_last_counter_block_as_cap:
                 bot_battle.play_counter_action(CounterAction.BlockStealingAsAmbassador) 
             else:
                 bot_battle.play_counter_action(CounterAction.BlockStealingAsCaptain)
+
+            is_last_counter_block_as_cap = not is_last_counter_block_as_cap
+        
+        else:
+            bot_battle.play_counter_action(CounterAction.NoCounterAction)
             
 
     def challenge_action_handler():
