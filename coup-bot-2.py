@@ -91,13 +91,17 @@ def get_next_alive_player():
     return next_alive
 
 def get_richest_alive():
-    list_2 = new_board.get_balance().copy()
-    list_2.sort()
-    if list_2[-1] == game_info.player_id and list_2[-2] != list_2[-1]:
-        return list_2.index(list_2[-2])
+    ls = new_board.get_balance()
+    ls[game_info.player_id] = -1
+    richest = new_board.get_balance().index(max(new_board.get_balance()))
     
-    else:
-        return list_2.index(list_2[-1])
+    while new_board.get_current_cards()[richest] == 0:
+        ls[richest] = -1
+        richest = new_board.get_balance().index(max(new_board.get_balance()))
+        
+    print("Richest is", richest, flush = True)
+
+    return richest
 
     
  
