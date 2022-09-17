@@ -1,3 +1,4 @@
+from ast import Num
 from operator import contains
 from submission_helper.bot_battle import BotBattle
 from submission_helper.state import *
@@ -34,6 +35,14 @@ class Board:
         self.balance = balance
         self.current_cards = current_cards
         
+    def get_num_alive_players(self):
+        num_alive = 5
+        for i in self.get_current_cards():
+            if i == 0:
+                num_alive -= 1
+        
+        return num_alive
+        
 '''
 Notes:
 change the index on when to coup
@@ -44,7 +53,8 @@ bot_battle = BotBattle()
 run_once = False
 new_player = None
 new_board = None
-
+duke_challenged = False
+assassin_challenged = False
 
 def personal_function():
     global run_once, new_player, new_board
@@ -56,11 +66,12 @@ def personal_function():
     
     new_player.update_data(game_info.own_cards, game_info.players_cards_num[game_info.player_id])
     new_board.update_data(game_info.balances, game_info.players_cards_num)
-    
+ 
     try:
         print("player info:", new_player.get_data(), flush=True)
         print("other player balance", new_board.get_balance(), flush=True)
         print("other players card num", new_board.get_current_cards(), flush=True)
+        print("Richest is", get_richest_alive(), flush = True) 
     
     except UnboundLocalError as e:
         print("Error with new player", flush=True)
@@ -79,7 +90,6 @@ def get_richest_alive():
         ls[richest] = -1
         richest = new_board.get_balance().index(max(new_board.get_balance()))
         
-    print("Richest is", richest, flush = True) 
 
     return richest
 
@@ -125,11 +135,21 @@ def move_controller(requested_move: RequestedMove):
 
 # the main "play" of the game when it is our turn
 def primary_action_handler():
-    #if game_info.balances[get_left_alive_player()] >= 3:
-    #    target_player_id = get_left_alive_player()
-    #    bot_battle.play_primary_action(PrimaryAction.Steal, target_player_id)
+    # Bot does nothing with captain and ambassador, but takes income? No wonder its losing!
+    # If its ambassador swap with assassin
+    if game_info.balances[game_info.player_id] >= 10:
+        bot_battle.play_primary_action(PrimaryAction.Coup, get_richest_alive())
+    
+    elif game_info.balances[game_info.player_id] >= 3 and assassin_challenged == False and new_board.get_num_alive_players() == 2:
+        bot_battle.play_primary_action(PrimaryAction.Assassinate, get_next_alive_player())
 
-    if game_info.balances[game_info.player_id] >= 7:
+    elif duke_challenged == False: # TODO: If player gets challenged after tax, change these to true
+        bot_battle.play_primary_action(PrimaryAction.Tax)
+        
+    elif game_info.balances[get_left_alive_player()] >= 3 and assassin_challenged == False: # TODO: If player gets challenged after assassinate, do something
+        bot_battle.play_primary_action(PrimaryAction.Assassinate, get_left_alive_player())
+    
+    elif game_info.balances[game_info.player_id] >= 7 and new_board.get_num_alive_players() != 3:
         target_player_id = get_left_alive_player()
         bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
         
