@@ -126,7 +126,10 @@ def move_controller(requested_move: RequestedMove):
 
 
 def primary_action_handler():
-    if game_info.balances[game_info.player_id] >= 7:
+    if not(contains(game_info.own_cards, Character.Captain):
+        bot_battle.play_primary_action(PrimaryAction.Exchange)
+           
+    elif game_info.balances[game_info.player_id] >= 7:
         target_player_id = get_next_alive_player()
         bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
     else:
@@ -170,7 +173,32 @@ def challenge_response_handler():
 
 
 def discard_choice_handler():
-    bot_battle.play_discard_choice(0)
+    primary_action = game_info.history[-1][ActionType.PrimaryAction]
+
+
+    if primary_action.action == PrimaryAction.Exchange and primary_action.successful: 
+        print(game_info.own_cards, flush=True)
+        if contains(game_info.own_cards, Character.Captain):
+            want_index = game_info.own_cards.index(Character.Captain)
+            ls= []
+            for i in range(game_info.own_cards):
+                if i != want_index:
+                    ls.append(i)
+
+            bot_battle.play_discard_choice(ls[1])
+            bot_battle.play_discard_choice(ls[0])
+    
+    
+    elif contains(game_info.own_cards, Character.Captain):
+        want_index = game_info.own_cards.index(Character.captain)
+        ls = []
+        for i in range(game_info.own_cards):
+            if i != want_index:
+                ls.append(i)
+        botbattle.play_discard_choice(0)
+
+    else:
+        bot_battle.play_discard_choice(0)
 
 
 if __name__ == "__main__":
