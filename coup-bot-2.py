@@ -221,7 +221,24 @@ def discard_choice_handler():
         bot_battle.play_discard_choice(0)
 
     else:
-        bot_battle.play_discard_choice(0)
+        if len(game_info.own_cards) == 1:
+            bot_battle.play_discard_choice(0)
+        
+        elif len(game_info.own_cards) == 2:
+            if contains(game_info.own_cards, Character.Contessa):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Contessa)) # discard Contessa instead of Assassin or Captain
+            
+            elif contains(game_info.own_cards, Character.Duke):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Duke))# discard Duke instead of Assassin or Captain
+              
+            elif contains(game_info.own_cards, Character.Assassin):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Assassin)) # discard Assassin instead of Assassin or Captain
+            
+            elif contains(game_info.own_cards, Character.Ambassador):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Ambassador)) # discard Ambassador instead of Assassin or Captain
+
+            else:
+                bot_battle.play_discard_choice(0)
 
 
 if __name__ == "__main__":
