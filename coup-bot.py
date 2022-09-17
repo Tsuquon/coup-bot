@@ -68,7 +68,25 @@ def personal_function():
         print("Error with new player", flush=True)
         print(e, flush=True)
     
+ 
+#used for challenge response handler
+def get_previous_action_in_turn() -> Action:
+    return list(game_info.history[-1].values())[-1]
+
+#returns index of richest player
+def get_richest_alive():
+    #Not sure what to do if richest ppl = same number of coins 
+    ls = new_board.get_balance()
+    ls[game_info.player_id] = -1
+    richest = new_board.get_balance().index(max(new_board.get_balance()))
     
+    while new_board.get_current_cards()[richest] == 0:
+        ls[richest] = -1
+        richest = new_board.get_balance().index(max(new_board.get_balance()))
+        
+    print("Richest is", richest, flush = True) 
+
+    return richest
 
 
 # gets the closes player that is left alive in turn order
@@ -84,7 +102,7 @@ def get_next_alive_player():
 def get_left_alive_player():
     left_alive = (game_info.player_id - 1) % 5
     while game_info.players_cards_num[left_alive] == 0:
-        left_alive = (left_alive + 1)% 5
+        left_alive = (left_alive - 1)% 5
     return left_alive
 
 
@@ -133,7 +151,43 @@ def challenge_action_handler():
 
 # TODO: is this the part that asks us if we're lying or not?
 def challenge_response_handler():
-    bot_battle.play_challenge_response(0)
+    previous_action = get_previous_action_in_turn()
+
+    reveal_card_index = None
+
+    # Challenge was primary action
+    if previous_action.action_type == ActionType.PrimaryAction:
+        primary_action = game_info.history[-1][ActionType.PrimaryAction].action
+
+        # If we have the card we used, lets reveal it
+        if primary_action == PrimaryAction.Assassinate:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Assassin)
+        elif primary_action == PrimaryAction.Exchange:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Ambassador)
+        elif primary_action == PrimaryAction.Steal:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Captain)
+        elif primary_action == PrimaryAction.Tax:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Duke)
+
+        # Challenge was counter action
+    elif previous_action.action_type == ActionType.CounterAction:
+        counter_action = game_info.history[-1][ActionType.CounterAction].action
+
+        # If we have the card we used, lets reveal it
+        if counter_action == CounterAction.BlockAssassination:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Contessa)
+        elif counter_action == CounterAction.BlockStealingAsAmbassador:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Ambassador)
+        elif counter_action == CounterAction.BlockStealingAsCaptain:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Captain)
+        elif counter_action == CounterAction.BlockForeignAid:
+            reveal_card_index = indexOf(game_info.own_cards, Character.Duke)
+        
+        # If we lied, let's reveal our first card
+    if reveal_card_index == None or reveal_card_index == -1:
+        reveal_card_index = 0
+
+    bot_battle.play_challenge_response(reveal_card_index)
 
 # TODO: discards the card of least value to prepare for endgame
 # strategy in the following order
