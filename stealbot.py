@@ -66,8 +66,22 @@ def personal_function():
         print("Error with new player", flush=True)
         print(e, flush=True)
     
-    
+def get_previous_action_in_turn() -> Action:
+    return list(game_info.history[-1].values())[-1]
 
+def get_richest_alive():
+    #Not sure what to do if richest ppl = same number of coins 
+    ls = new_board.get_balance()
+    ls[game_info.player_id] = -1
+    richest = new_board.get_balance().index(max(new_board.get_balance()))
+    
+    while new_board.get_current_cards()[richest] == 0:
+        ls[richest] = -1
+        richest = new_board.get_balance().index(max(new_board.get_balance()))
+        
+    print("Richest is", richest, flush = True) 
+
+    return richest
 
 # gets the closes player that is left alive in turn order
 # clockwise(?) and returns their index
@@ -82,7 +96,7 @@ def get_next_alive_player():
 def get_left_alive_player():
     left_alive = (game_info.player_id - 1) % 5
     while game_info.players_cards_num[left_alive] == 0:
-        left_alive = (left_alive + 1)% 5
+        left_alive = (left_alive - 1 )% 5
     return left_alive
 
 
@@ -111,21 +125,26 @@ def move_controller(requested_move: RequestedMove):
 
 # the main "play" of the game when it is our turn
 def primary_action_handler():
-    if game_info.balances(get_left_alive_player()) >= 3:
-        target_player_id = get_left_alive_player
-        bot_battle.play_primary_action(PrimaryAction.Steal, target_player_id)
+    #if game_info.balances[get_left_alive_player()] >= 3:
+    #    target_player_id = get_left_alive_player()
+    #    bot_battle.play_primary_action(PrimaryAction.Steal, target_player_id)
     
-    elif game_info.balances[game_info.player_id] >= 7:
-        target_player_id = get_left_alive_player
+    if game_info.balances[game_info.player_id] >= 7:
+        target_player_id = get_left_alive_player()
         bot_battle.play_primary_action(PrimaryAction.Coup, target_player_id)
         
     else:
         target_player_id = get_richest_alive()
-        bot_battle.play_primary_action(PrimaryAction.Steal, target_player_id)
+        if new_board.get_balance()[target_player_id] == 0:
+            bot_battle.play_primary_action(PrimaryAction.Income)
+        else:
+            bot_battle.play_primary_action(PrimaryAction.Steal, target_player_id)
+
         
 # TODO: add logic here for when we want to counter
 def counter_action_handler():
     bot_battle.play_counter_action(CounterAction.NoCounterAction)
+
 
 # TODO: add logic here for when we want to call someone's bluff
 def challenge_action_handler():
@@ -133,7 +152,6 @@ def challenge_action_handler():
 
 # TODO: is this the part that asks us if we're lying or not?
 def challenge_response_handler():
-    def challenge_response_handler():
     previous_action = get_previous_action_in_turn()
 
     reveal_card_index = None
