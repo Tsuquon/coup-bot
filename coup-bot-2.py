@@ -212,29 +212,35 @@ def challenge_response_handler():
 def discard_choice_handler():
     primary_action = game_info.history[-1][ActionType.PrimaryAction]
     
-    if primary_action.action == PrimaryAction.Exchange and primary_action.successful: 
+        if primary_action.action == PrimaryAction.Exchange and primary_action.successful: 
         print(game_info.own_cards, flush=True)
         if contains(game_info.own_cards, Character.Captain):
             want_index = game_info.own_cards.index(Character.Captain)
-            ls= []
-            for i in range(game_info.own_cards):
-                if i != want_index:
-                    ls.append(i)
+            ls = game_info.own_cards
+            ls.pop(want_index)
 
             bot_battle.play_discard_choice(ls[1])
             bot_battle.play_discard_choice(ls[0])
-    
-    
-    elif contains(game_info.own_cards, Character.Captain):
-        want_index = game_info.own_cards.index(Character.captain)
-        ls = []
-        for i in range(game_info.own_cards):
-            if i != want_index:
-                ls.append(i)
-        bot_battle.play_discard_choice(0)
 
     else:
-        bot_battle.play_discard_choice(0)
+        if len(game_info.own_cards) == 1:
+            bot_battle.play_discard_choice(0)
+        
+        elif len(game_info.own_cards) == 2:
+            if contains(game_info.own_cards, Character.Contessa):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Contessa)) # discard Contessa instead of Assassin or Captain
+            
+            elif contains(game_info.own_cards, Character.Duke):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Duke))# discard Duke instead of Assassin or Captain
+              
+            elif contains(game_info.own_cards, Character.Assassin):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Assassin)) # discard Assassin instead of Assassin or Captain
+            
+            elif contains(game_info.own_cards, Character.Ambassador):
+                bot_battle.play_discard_choice(game_info.own_cards.index(Character.Ambassador)) # discard Ambassador instead of Assassin or Captain
+
+            else:
+                bot_battle.play_discard_choice(0)
 
 
 if __name__ == "__main__":
