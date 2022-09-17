@@ -142,12 +142,16 @@ def primary_action_handler():
     
     elif game_info.balances[game_info.player_id] >= 3 and assassin_challenged == False and new_board.get_num_alive_players() == 2:
         bot_battle.play_primary_action(PrimaryAction.Assassinate, get_next_alive_player())
-
-    elif duke_challenged == False: # TODO: If player gets challenged after tax, change these to true
-        bot_battle.play_primary_action(PrimaryAction.Tax)
         
     elif game_info.balances[get_left_alive_player()] >= 3 and assassin_challenged == False: # TODO: If player gets challenged after assassinate, do something
         bot_battle.play_primary_action(PrimaryAction.Assassinate, get_left_alive_player())
+    
+    elif duke_challenged == False: # TODO: If player gets challenged after tax, change these to true
+        bot_battle.play_primary_action(PrimaryAction.Tax)
+    
+    elif Character.Ambassador in game_info.own_cards: # Should trade out cards, but how?
+        if assassin_challenged == True:
+            pass
     
     elif game_info.balances[game_info.player_id] >= 7 and new_board.get_num_alive_players() != 3:
         target_player_id = get_left_alive_player()
